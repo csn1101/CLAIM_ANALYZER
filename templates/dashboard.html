@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-chart-bar"></i> Claims Analysis Dashboard</h2>
+        <p class="text-muted">Overview of all analyzed claims and performance metrics</p>
+    </div>
+</div>
+
+{% if has_data %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+                <h4>{{ stats.total_claims }}</h4>
+                <p class="card-text">Total Claims</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                <h4>{{ stats.fraud_rate }}%</h4>
+                <p class="card-text">Fraud Rate</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-pie fa-2x mb-2"></i>
+                <h4>{{ stats.high_risk_rate }}%</h4>
+                <p class="card-text">High Risk Rate</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <h4>{{ stats.approval_rate }}%</h4>
+                <p class="card-text">Approval Rate</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5>Average Fraud Probability</h5>
+                <div class="h3 text-{% if stats.avg_fraud_probability > 50 %}danger{% elif stats.avg_fraud_probability > 25 %}warning{% else %}success{% endif %}">
+                    {{ stats.avg_fraud_probability }}%
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5>Average Risk Score</h5>
+                <div class="h3 text-{% if stats.avg_risk_score > 60 %}danger{% elif stats.avg_risk_score > 30 %}warning{% else %}success{% endif %}">
+                    {{ stats.avg_risk_score }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5>Average Claim Amount</h5>
+                <div class="h3 text-info">
+                    ${{ "{:,.0f}".format(stats.avg_claim_amount) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5>Risk Level Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="riskChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5>Decision Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="decisionChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Claims Table -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-clock"></i> Recent Claims</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Amount</th>
+                                <th>Fraud Risk</th>
+                                <th>Risk Level</th>
+                                <th>Decision</th>
+                                <th>Timestamp</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for claim in recent_claims %}
+                            <tr>
+                                <td>{{ claim.id }}</td>
+                                <td>${{ "{:,.2f}".format(claim.claim_data.claim_amount) }}</td>
+                                <td>
+                                    <span class="badge {% if claim.analysis.fraud_probability > 70 %}bg-danger{% elif claim.analysis.fraud_probability > 40 %}bg-warning{% else %}bg-success{% endif %}">
+                                        {{ claim.analysis.fraud_probability }}%
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if claim.analysis.risk_level == 'High' %}bg-danger{% elif claim.analysis.risk_level == 'Medium' %}bg-warning{% else %}bg-success{% endif %}">
+                                        {{ claim.analysis.risk_level }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="decision-{{ claim.analysis.approval_recommendation.decision.lower() }}">
+                                        {{ claim.analysis.approval_recommendation.decision }}
+                                    </span>
+                                </td>
+                                <td>{{ claim.timestamp[:19].replace('T', ' ') }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_claim', claim_id=claim.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- No Data State -->
+<div class="row">
+    <div class="col-md-12 text-center">
+        <div class="card">
+            <div class="card-body py-5">
+                <i class="fas fa-chart-bar fa-5x text-muted mb-4"></i>
+                <h4>No Claims Data Available</h4>
+                <p class="text-muted mb-4">Start analyzing claims to see dashboard statistics and insights.</p>
+                <a href="{{ url_for('manual_input') }}" class="btn btn-primary btn-lg me-2">
+                    <i class="fas fa-plus"></i> Analyze Your First Claim
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-upload"></i> Upload Document
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if has_data %}
+<script>
+// Fetch chart data from API
+fetch('/api/stats')
+    .then(response => response.json())
+    .then(data => {
+        // Risk Level Distribution Chart
+        const riskCtx = document.getElementById('riskChart').getContext('2d');
+        new Chart(riskCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+                datasets: [{
+                    data: [data.risk_distribution.Low, data.risk_distribution.Medium, data.risk_distribution.High],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Decision Distribution Chart
+        const decisionCtx = document.getElementById('decisionChart').getContext('2d');
+        new Chart(decisionCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Approve', 'Review', 'Reject'],
+                datasets: [{
+                    data: [data.decision_distribution.APPROVE, data.decision_distribution.REVIEW, data.decision_distribution.REJECT],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching chart data:', error);
+    });
+</script>
+{% endif %}
+{% endblock %}

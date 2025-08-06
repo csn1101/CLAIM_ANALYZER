@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-file-alt"></i> Claim Details #{{ result.id }}</h2>
+        <p class="text-muted">Detailed analysis results and claim information</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Claim Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Claim ID:</strong> #{{ result.id }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Amount:</strong> ${{ "{:,.2f}".format(result.claim_data.claim_amount) }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Analyzed:</strong> {{ result.timestamp[:19].replace('T', ' ') }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Status:</strong> 
+                        <span class="decision-{{ result.analysis.approval_recommendation.decision.lower() }}">
+                            {{ result.analysis.approval_recommendation.decision }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Results -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-center">
+                <h6><i class="fas fa-exclamation-triangle"></i> Fraud Analysis</h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="display-4 mb-3 {% if result.analysis.fraud_probability > 70 %}text-danger{% elif result.analysis.fraud_probability > 40 %}text-warning{% else %}text-success{% endif %}">
+                    {{ result.analysis.fraud_probability }}%
+                </div>
+                <div class="progress mb-3" style="height: 15px;">
+                    <div class="progress-bar {% if result.analysis.fraud_probability > 70 %}bg-danger{% elif result.analysis.fraud_probability > 40 %}bg-warning{% else %}bg-success{% endif %}" 
+                         style="width: {{ result.analysis.fraud_probability }}%"></div>
+                </div>
+                <p class="mb-0">
+                    {% if result.analysis.is_likely_fraud %}
+                        <span class="badge bg-danger">High Fraud Risk</span>
+                    {% else %}
+                        <span class="badge bg-success">Low Fraud Risk</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-center">
+                <h6><i class="fas fa-chart-pie"></i> Risk Assessment</h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="display-4 mb-3 {% if result.analysis.risk_level == 'High' %}text-danger{% elif result.analysis.risk_level == 'Medium' %}text-warning{% else %}text-success{% endif %}">
+                    {{ result.analysis.risk_score }}
+                </div>
+                <div class="progress mb-3" style="height: 15px;">
+                    <div class="progress-bar {% if result.analysis.risk_level == 'High' %}bg-danger{% elif result.analysis.risk_level == 'Medium' %}bg-warning{% else %}bg-success{% endif %}" 
+                         style="width: {{ result.analysis.risk_score }}%"></div>
+                </div>
+                <p class="mb-0">
+                    <span class="badge {% if result.analysis.risk_level == 'High' %}bg-danger{% elif result.analysis.risk_level == 'Medium' %}bg-warning{% else %}bg-success{% endif %}">
+                        {{ result.analysis.risk_level }} Risk
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-center">
+                <h6><i class="fas fa-gavel"></i> Recommendation</h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="display-4 mb-3">
+                    {% if result.analysis.approval_recommendation.decision == 'APPROVE' %}
+                        <i class="fas fa-check-circle text-success"></i>
+                    {% elif result.analysis.approval_recommendation.decision == 'REVIEW' %}
+                        <i class="fas fa-eye text-warning"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle text-danger"></i>
+                    {% endif %}
+                </div>
+                <h5 class="decision-{{ result.analysis.approval_recommendation.decision.lower() }}">
+                    {{ result.analysis.approval_recommendation.decision }}
+                </h5>
+                <p class="mb-0">{{ result.analysis.approval_recommendation.reason }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Claim Information -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-user"></i> Claimant Information</h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Age:</strong></td>
+                        <td>{{ result.claim_data.claimant_age }} years</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Policy Age:</strong></td>
+                        <td>{{ result.claim_data.policy_age_days }} days</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Previous Claims:</strong></td>
+                        <td>{{ result.claim_data.previous_claims }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Days Since Incident:</strong></td>
+                        <td>{{ result.claim_data.claim_age_days }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Claim Amount:</strong></td>
+                        <td>${{ "{:,.2f}".format(result.claim_data.claim_amount) }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-cogs"></i> Analysis Metrics</h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Confidence Score:</strong></td>
+                        <td>{{ result.analysis.confidence_score }}%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fraud Probability:</strong></td>
+                        <td>{{ result.analysis.fraud_probability }}%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Risk Score:</strong></td>
+                        <td>{{ result.analysis.risk_score }}/100</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Risk Level:</strong></td>
+                        <td>
+                            <span class="badge {% if result.analysis.risk_level == 'High' %}bg-danger{% elif result.analysis.risk_level == 'Medium' %}bg-warning{% else %}bg-success{% endif %}">
+                                {{ result.analysis.risk_level }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Manual Review:</strong></td>
+                        <td>
+                            {% if result.analysis.approval_recommendation.requires_review %}
+                                <span class="badge bg-warning">Required</span>
+                            {% else %}
+                                <span class="badge bg-success">Not Required</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Claim Description -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-file-text"></i> Claim Description</h6>
+            </div>
+            <div class="card-body">
+                <div class="bg-light p-3 rounded">
+                    {{ result.claim_data.claim_text }}
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        Word count: {{ result.claim_data.claim_text.split()|length }} | 
+                        Character count: {{ result.claim_data.claim_text|length }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="row">
+    <div class="col-md-12 text-center">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg me-2">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <a href="{{ url_for('manual_input') }}" class="btn btn-success btn-lg me-2">
+            <i class="fas fa-plus"></i> Analyze New Claim
+        </a>
+        <button class="btn btn-secondary btn-lg" onclick="window.print()">
+            <i class="fas fa-print"></i> Print Report
+        </button>
+    </div>
+</div>
+
+{% if result.analysis.approval_recommendation.requires_review %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="alert alert-warning">
+            <h6><i class="fas fa-exclamation-triangle"></i> Review Required</h6>
+            <p><strong>Reason:</strong> {{ result.analysis.approval_recommendation.reason }}</p>
+            <p class="mb-0"><strong>Next Steps:</strong> This claim should be reviewed by a human adjuster before final approval or rejection.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

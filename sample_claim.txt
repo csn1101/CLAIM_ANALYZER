@@ -1,0 +1,71 @@
+INSURANCE CLAIM REPORT
+======================
+
+Claim Number: CLM2024-001587
+Policy Number: AUTO-789456123
+Date of Report: March 20, 2024
+Date of Incident: March 18, 2024
+
+CLAIMANT INFORMATION
+--------------------
+Name: Sarah Johnson
+Age: 42
+Address: 123 Oak Street, Springfield, IL 62701
+Phone: (555) 123-4567
+Email: sarah.johnson@email.com
+
+INCIDENT DETAILS
+----------------
+Type of Incident: Motor Vehicle Accident
+Location: Intersection of Main St and 5th Avenue, Springfield, IL
+Time: 2:30 PM
+Weather Conditions: Clear, dry roads
+
+DESCRIPTION OF INCIDENT
+-----------------------
+I was driving northbound on Main Street when another vehicle ran the red light 
+at the intersection of 5th Avenue. The other driver struck my vehicle on the 
+passenger side. The impact caused significant damage to the passenger side door, 
+window, and front quarter panel.
+
+DAMAGE ASSESSMENT
+-----------------
+Vehicle: 2019 Honda Accord
+Estimated Damage: $6,750.00
+- Passenger side door replacement: $1,800
+- Window replacement: $350
+- Front quarter panel repair: $2,100
+- Paint work: $1,200
+- Labor: $1,300
+
+SUPPORTING DOCUMENTATION
+------------------------
+✓ Police Report Filed: Report #SPD-2024-0318-447
+✓ Photos of damage taken at scene
+✓ Witness statement from John Miller (555) 987-6543
+✓ Repair estimate from Springfield Auto Body
+✓ Medical clearance (no injuries sustained)
+
+OTHER DRIVER INFORMATION
+------------------------
+Name: Michael Thompson
+Insurance: ABC Insurance Company
+Policy: POL-445789
+Admission of fault documented in police report
+
+PREVIOUS CLAIMS HISTORY
+-----------------------
+Previous Claims: 1 (minor fender bender in 2021 - $800)
+Claim-free years: 2
+
+ADDITIONAL NOTES
+----------------
+Vehicle was towed to Springfield Auto Body for temporary storage.
+Rental car arrangements made through preferred provider.
+All documentation submitted within 48 hours of incident.
+
+I certify that the information provided is accurate and complete to the best 
+of my knowledge.
+
+Signature: Sarah Johnson
+Date: March 20, 2024

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-edit"></i> Claim Information Entry</h2>
+        <p class="text-muted">Enter the claim details below for AI-powered analysis</p>
+    </div>
+</div>
+
+{% if extracted_text %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-file-text"></i> Extracted Text from {{ filename }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Document Quality Analysis:</label>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="h4 {% if doc_quality.quality_score >= 70 %}text-success{% elif doc_quality.quality_score >= 40 %}text-warning{% else %}text-danger{% endif %}">
+                                    {{ doc_quality.quality_score }}%
+                                </div>
+                                <small>Quality Score</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="h4 text-info">{{ doc_quality.word_count }}</div>
+                                <small>Words</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {% if doc_quality.issues %}
+                            <strong>Issues Found:</strong>
+                            <ul class="small">
+                                {% for issue in doc_quality.issues %}
+                                <li>{{ issue }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <div class="text-success">No issues detected</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <textarea class="form-control" rows="6" readonly>{{ extracted_text }}</textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if claim_info %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-search"></i> Auto-Extracted Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for key, value in claim_info.items() %}
+                    {% if value %}
+                    <div class="col-md-4 mb-2">
+                        <strong>{{ key.replace('_', ' ').title() }}:</strong> {{ value }}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-form"></i> Claim Analysis Form</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('analyze_claim') }}" method="post">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="claim_text" class="form-label">Claim Description *</label>
+                            <textarea class="form-control" id="claim_text" name="claim_text" rows="6" 
+                                      placeholder="Enter detailed description of the incident, damage, and circumstances..." required>{% if extracted_text %}{{ extracted_text }}{% endif %}</textarea>
+                            <div class="form-text">Provide as much detail as possible for accurate analysis</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="claim_amount" class="form-label">Claim Amount ($) *</label>
+                            <input type="number" class="form-control" id="claim_amount" name="claim_amount" 
+                                   step="0.01" min="0" value="{% if claim_info and claim_info.claim_amount %}{{ claim_info.claim_amount }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="claimant_age" class="form-label">Claimant Age</label>
+                            <input type="number" class="form-control" id="claimant_age" name="claimant_age" 
+                                   min="18" max="100" value="35">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="policy_age_days" class="form-label">Policy Age (Days)</label>
+                            <input type="number" class="form-control" id="policy_age_days" name="policy_age_days" 
+                                   min="1" value="365">
+                            <div class="form-text">How long has the policy been active?</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="previous_claims" class="form-label">Previous Claims Count</label>
+                            <input type="number" class="form-control" id="previous_claims" name="previous_claims" 
+                                   min="0" value="0">
+                            <div class="form-text">Number of previous claims by this claimant</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="claim_age_days" class="form-label">Days Since Incident</label>
+                            <input type="number" class="form-control" id="claim_age_days" name="claim_age_days" 
+                                   min="0" value="1">
+                            <div class="form-text">How many days ago did the incident occur?</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-search"></i> Analyze Claim
+                            </button>
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg ms-2">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-lightbulb"></i> Tips for Accurate Analysis</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Include specific details about the incident (date, time, location)</li>
+                    <li>Mention any supporting documentation (police reports, medical records, receipts)</li>
+                    <li>Describe the extent of damage or injury clearly</li>
+                    <li>Include any witness information if available</li>
+                    <li>Be honest about previous claims to get accurate risk assessment</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
